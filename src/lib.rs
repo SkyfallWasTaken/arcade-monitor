@@ -10,9 +10,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 
     router
         .on_async("/", |_req, ctx| async move {
-            let body = "Hello, World!";
-
-            run_scrape(ctx.env).await?;
+            let body = run_scrape(ctx.env).await?;
 
             Response::ok(body)
         })
@@ -22,11 +20,8 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 
 #[derive(Serialize, Deserialize)]
 struct ShopItem {
-    #[serde(rename = "Name")]
-    name: String,
-
-    #[serde(rename = "Small Name")]
-    small_name: Option<String>,
+    #[serde(rename = "Full Name")]
+    full_name: String,
 
     #[serde(rename = "Description")]
     description: Option<String>,
@@ -38,7 +33,7 @@ struct ShopItem {
     price: i32,
 }
 
-async fn run_scrape(env: Env) -> Result<()> {
+async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
     let mut response = Fetch::Url(shop_url).send().await?;
 
@@ -54,16 +49,15 @@ async fn run_scrape(env: Env) -> Result<()> {
             .clone(),
     )?;
 
+    let mut result = Vec::new();
     for item in available_items {
-        let item_name = item.small_name.unwrap_or(item.name.clone());
-        let item_description = item
-            .description
-            .unwrap_or(item.fulfillment_description.unwrap_or("".to_string()));
-        let item_price = item.price;
-
-        let message = format!("{}: {} - ${}", item_name, item_description, item_price);
-        console_debug!("{message}");
+        result.push(format!(
+            "`{full_name}` - {price} {}",
+            if item.price == 1 { "ticket" } else { "tickets" },
+            full_name = item.full_name.trim(),
+            price = item.price,
+        ));
     }
 
-    Ok(())
+    Ok(result.join("\n"))
 }
