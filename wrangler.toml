@@ -1,0 +1,12 @@
+name = "arcade-monitor"
+main = "build/worker/shim.mjs"
+compatibility_date = "2024-06-29"
+
+[build]
+command = "cargo install worker-build && worker-build --release"
+
+[triggers]
+crons = ["0 * * * *"] # Run every hour
+
+[vars]
+ARCADE_SHOP_URL = "https://hackclub.com/arcade/shop/"

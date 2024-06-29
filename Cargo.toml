@@ -1,0 +1,27 @@
+[package]
+name = "arcade-monitor"
+version = "0.1.0"
+edition = "2021"
+authors = ["SkyfallWasTaken <mahadkalam1@proton.me>"]
+
+[package.metadata.release]
+release = false
+
+# https://github.com/rustwasm/wasm-pack/issues/1247
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+worker = "0.3"
+worker-macros = "0.3"
+console_error_panic_hook = { version = "0.1.1" }
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.118"
+scraper = "0.19.0"
+
+# We don't use getrandom, but we enable the "js" feature to enable
+# WebAssembly support.
+getrandom = { version = "0.2", features = ["js"] }
