@@ -1,3 +1,5 @@
+use indoc::formatdoc;
+use serde_json::json;
 use worker::*;
 
 mod format;
@@ -21,6 +23,7 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 
 async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
+    let webhook_url = env.var("SLACK_WEBHOOK_URL")?.to_string();
     let kv = env.kv("SHOP_ITEMS")?;
 
     let available_items = items::try_fetch(shop_url).await?;
@@ -46,6 +49,28 @@ async fn run_scrape(env: Env) -> Result<String> {
                 result.push(format::format_new_item(&item));
             }
         }
+    }
+
+    // If there are any updates/new items, send a message to the Slack webhook.
+    if result.is_empty() {
+        return Ok("No changes detected".into());
+    } else {
+        let message = formatdoc! {
+            "*Changes detected in the shop:*
+            {changes}",
+            changes = result.join("\n\n"),
+        };
+
+        let request = Request::new_with_init(
+            &webhook_url,
+            RequestInit::new()
+                .with_body(json!({
+                    "text": message,
+                }))
+                .with_method(Method::Post),
+        );
+
+        Fetch::Request(request).send().await?;
     }
 
     // Now, let's persist the items to the KV store.
