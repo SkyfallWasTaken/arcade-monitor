@@ -73,7 +73,7 @@ mod format_new_tests {
         };
 
         assert_eq!(
-            format_new_item(item),
+            format_new_item(&item),
             indoc! {"
             *New item added:* Test
             *Description:* Lorem ipsum
