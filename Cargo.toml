@@ -22,3 +22,4 @@ indoc = "2.0.5"
 # We don't use getrandom, but we enable the "js" feature to enable
 # WebAssembly support.
 getrandom = { version = "0.2", features = ["js"] }
+serde-wasm-bindgen = "0.6.5"

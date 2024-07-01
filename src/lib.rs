@@ -64,11 +64,11 @@ async fn run_scrape(env: Env) -> Result<String> {
         let request = Request::new_with_init(
             &webhook_url,
             RequestInit::new()
-                .with_body(json!({
-                    "text": message,
-                }))
+                .with_body(Some(serde_wasm_bindgen::to_value(
+                    &json!({ "text": message }),
+                )?))
                 .with_method(Method::Post),
-        );
+        )?;
 
         Fetch::Request(request).send().await?;
     }
