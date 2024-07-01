@@ -45,6 +45,7 @@ pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use indoc::indoc;
 
     #[test]
     fn price_diff() {
@@ -62,7 +63,13 @@ mod test {
 
         assert_eq!(
             diff_items(old, new),
-            Some("*Item updated*\n*Name:* Test\n*Price:* 1 → 2".into())
+            Some(
+                indoc! {"
+                *Item updated*
+                *Name:* Test
+                *Price:* 1 → 2"}
+                .into()
+            )
         );
     }
 }

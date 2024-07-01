@@ -36,6 +36,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "getrandom",
+ "indoc",
  "scraper",
  "serde",
  "serde_json",
@@ -354,6 +355,12 @@ dependencies = [
  "unicode-bidi",
  "unicode-normalization",
 ]
+
+[[package]]
+name = "indoc"
+version = "2.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
 
 [[package]]
 name = "itoa"
