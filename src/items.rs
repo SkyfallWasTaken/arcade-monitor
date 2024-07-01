@@ -30,12 +30,16 @@ pub async fn try_fetch(shop_url: Url) -> Result<ShopItems> {
     let doc_html = response.text().await?;
     let doc = Html::parse_document(&doc_html);
     let selector = Selector::parse("#__NEXT_DATA__").unwrap();
-    let json: serde_json::Value =
-        serde_json::from_str(&doc.select(&selector).next().unwrap().inner_html())?;
+    let json: serde_json::Value = serde_json::from_str(
+        &doc.select(&selector)
+            .next()
+            .ok_or("no #__NEXT_DATA__ element in document")?
+            .inner_html(),
+    )?;
 
     let available_items = serde_json::from_value(
         json.pointer("/props/pageProps/availableItems")
-            .expect("availableItems not found - is the ARCADE_SHOP_URL correct?")
+            .ok_or("availableItems not found - is the ARCADE_SHOP_URL correct?")?
             .clone(),
     )?;
 
