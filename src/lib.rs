@@ -25,10 +25,14 @@ async fn run_scrape(env: Env) -> Result<String> {
     let mut result = Vec::new();
     for item in available_items {
         result.push(format!(
-            "`{full_name}` - {price} {}",
+            "`{full_name}` - {price} {} - Stock: {stock}",
             if item.price == 1 { "ticket" } else { "tickets" },
             full_name = item.full_name.trim(),
             price = item.price,
+            stock = item
+                .stock
+                .map(|stock| stock.to_string())
+                .unwrap_or("Unlimited".into())
         ));
     }
 
