@@ -1,3 +1,5 @@
+use indoc::{formatdoc, indoc};
+
 use crate::items::ShopItem;
 
 pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
@@ -42,15 +44,43 @@ pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
 }
 
 pub fn format_new_item(item: ShopItem) -> String {
-    format!(
-        "*New item added:* {full_name}\n*Description:* {description}\n*Price:* {price}\n*Stock:* {stock}",
+    formatdoc! {
+        "*New item added:* {full_name}
+        *Description:* {description}
+        *Price:* {price}
+        *Stock:* {stock}",
         full_name = item.full_name,
         description = item.description.unwrap_or("_not set_".into()),
         price = item.price,
         stock = item.stock
             .map(|stock| stock.to_string())
             .unwrap_or("Unlimited".into()),
-    )
+    }
+}
+
+#[cfg(test)]
+mod format_new_tests {
+    use super::*;
+
+    #[test]
+    fn item_formatted() {
+        let item = ShopItem {
+            full_name: "Test".into(),
+            description: Some("Lorem ipsum".into()),
+            price: 1,
+            stock: Some(10),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            format_new_item(item),
+            indoc! {"
+            *New item added:* Test
+            *Description:* Lorem ipsum
+            *Price:* 1
+            *Stock:* 10"}
+        );
+    }
 }
 
 #[cfg(test)]
