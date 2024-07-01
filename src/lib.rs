@@ -1,5 +1,6 @@
 use worker::*;
 
+mod diff;
 mod items;
 
 #[event(fetch, respond_with_errors)]
