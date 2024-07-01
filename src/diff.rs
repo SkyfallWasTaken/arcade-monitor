@@ -7,7 +7,6 @@ pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
     }
 
     let mut result = Vec::new();
-    result.push("*Item updated*".into());
 
     if old.full_name != new.full_name {
         result.push(format!("*Name:* {} → {}", old.full_name, new.full_name));
@@ -65,7 +64,6 @@ mod test {
             diff_items(old, new),
             Some(
                 indoc! {"
-                *Item updated*
                 *Name:* Test
                 *Price:* 1 → 2"}
                 .into()
@@ -91,7 +89,6 @@ mod test {
             diff_items(old, new),
             Some(
                 indoc! {"
-                *Item updated*
                 *Name:* Test
                 *Description:* Lorem ipsum → Dolor sit amet"}
                 .into()
@@ -117,7 +114,6 @@ mod test {
             diff_items(old, new),
             Some(
                 indoc! {"
-                *Item updated*
                 *Name:* Test
                 *Stock:* 10 → 9"}
                 .into()
@@ -143,7 +139,6 @@ mod test {
             diff_items(old, new),
             Some(
                 indoc! {"
-                *Item updated*
                 *Name:* Test
                 *Stock:* 10 → Unlimited"}
                 .into()
@@ -169,7 +164,6 @@ mod test {
             diff_items(old, new),
             Some(
                 indoc! {"
-                *Item updated*
                 *Name:* Test
                 *Stock:* Unlimited → 10"}
                 .into()
