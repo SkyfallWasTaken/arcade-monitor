@@ -2,7 +2,7 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use worker::*;
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Default, Clone)]
 pub struct ShopItem {
     #[serde(rename = "Full Name")]
     pub full_name: String,

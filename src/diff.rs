@@ -72,4 +72,119 @@ mod test {
             )
         );
     }
+
+    #[test]
+    fn description_diff() {
+        let old = ShopItem {
+            full_name: "Test".into(),
+            description: Some("Lorem ipsum".into()),
+            ..Default::default()
+        };
+
+        let new = ShopItem {
+            full_name: "Test".into(),
+            description: Some("Dolor sit amet".into()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            diff_items(old, new),
+            Some(
+                indoc! {"
+                *Item updated*
+                *Name:* Test
+                *Description:* Lorem ipsum → Dolor sit amet"}
+                .into()
+            )
+        );
+    }
+
+    #[test]
+    fn stock_diff_limited_update() {
+        let old = ShopItem {
+            full_name: "Test".into(),
+            stock: Some(10),
+            ..Default::default()
+        };
+
+        let new = ShopItem {
+            full_name: "Test".into(),
+            stock: Some(9),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            diff_items(old, new),
+            Some(
+                indoc! {"
+                *Item updated*
+                *Name:* Test
+                *Stock:* 10 → 9"}
+                .into()
+            )
+        );
+    }
+
+    #[test]
+    fn stock_diff_limited_to_unlimited() {
+        let old = ShopItem {
+            full_name: "Test".into(),
+            stock: Some(10),
+            ..Default::default()
+        };
+
+        let new = ShopItem {
+            full_name: "Test".into(),
+            stock: None,
+            ..Default::default()
+        };
+
+        assert_eq!(
+            diff_items(old, new),
+            Some(
+                indoc! {"
+                *Item updated*
+                *Name:* Test
+                *Stock:* 10 → Unlimited"}
+                .into()
+            )
+        );
+    }
+
+    #[test]
+    fn stock_diff_unlimited_to_limited() {
+        let old = ShopItem {
+            full_name: "Test".into(),
+            stock: None,
+            ..Default::default()
+        };
+
+        let new = ShopItem {
+            full_name: "Test".into(),
+            stock: Some(10),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            diff_items(old, new),
+            Some(
+                indoc! {"
+                *Item updated*
+                *Name:* Test
+                *Stock:* Unlimited → 10"}
+                .into()
+            )
+        );
+    }
+
+    #[test]
+    fn equal_items_no_diff() {
+        let item = ShopItem {
+            full_name: "Test".into(),
+            price: 1,
+            ..Default::default()
+        };
+
+        assert_eq!(diff_items(item.clone(), item), None);
+    }
 }
