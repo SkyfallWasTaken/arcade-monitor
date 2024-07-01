@@ -38,12 +38,12 @@ async fn run_scrape(env: Env) -> Result<String> {
 
         match old_item {
             Some(old) => {
-                if let Some(diff) = format::format_diff(old, item) {
+                if let Some(diff) = format::format_item_diff(old, item) {
                     result.push(diff);
                 }
             }
             None => {
-                result.push(format::format_new_item(item));
+                result.push(format::format_new_item(&item));
             }
         }
     }

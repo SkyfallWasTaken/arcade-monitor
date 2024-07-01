@@ -2,7 +2,7 @@ use indoc::formatdoc;
 
 use crate::items::ShopItem;
 
-pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
+pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
     if old == new {
         // The items are the exact same
         return None;
@@ -19,8 +19,8 @@ pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
     if old.description != new.description {
         result.push(format!(
             "*Description:* {} → {}",
-            old.description.unwrap_or("_not set_".into()),
-            new.description.unwrap_or("_not set_".into())
+            old.description.as_ref().unwrap_or(&"_not set_".into()),
+            new.description.as_ref().unwrap_or(&"_not set_".into())
         ));
     }
 
@@ -43,14 +43,14 @@ pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
     Some(result.join("\n"))
 }
 
-pub fn format_new_item(item: ShopItem) -> String {
+pub fn format_new_item(item: &ShopItem) -> String {
     formatdoc! {
         "*New item added:* {full_name}
         *Description:* {description}
         *Price:* {price}
         *Stock:* {stock}",
         full_name = item.full_name,
-        description = item.description.unwrap_or("_not set_".into()),
+        description = item.description.as_ref().unwrap_or(&"_not set_".into()),
         price = item.price,
         stock = item.stock
             .map(|stock| stock.to_string())
@@ -103,7 +103,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            diff_items(old, new),
+            format_item_diff(&old, &new),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -128,7 +128,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            diff_items(old, new),
+            format_item_diff(&old, &new),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -153,7 +153,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            diff_items(old, new),
+            format_item_diff(&old, &new),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -178,7 +178,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            diff_items(old, new),
+            format_item_diff(&old, &new),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -203,7 +203,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            diff_items(old, new),
+            format_item_diff(&old, &new),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -221,6 +221,6 @@ mod diff_tests {
             ..Default::default()
         };
 
-        assert_eq!(diff_items(item.clone(), item), None);
+        assert_eq!(format_item_diff(&item, &item), None);
     }
 }
