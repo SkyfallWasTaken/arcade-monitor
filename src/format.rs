@@ -1,4 +1,4 @@
-use indoc::{formatdoc, indoc};
+use indoc::formatdoc;
 
 use crate::items::ShopItem;
 

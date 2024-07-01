@@ -21,21 +21,35 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 
 async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
+    let kv = env.kv("SHOP_ITEMS")?;
 
     let available_items = items::try_fetch(shop_url).await?;
-    let mut result = Vec::new();
-    for item in available_items {
-        result.push(format!(
-            "`{full_name}` - {price} {} - Stock: {stock}",
-            if item.price == 1 { "ticket" } else { "tickets" },
-            full_name = item.full_name.trim(),
-            price = item.price,
-            stock = item
-                .stock
-                .map(|stock| stock.to_string())
-                .unwrap_or("Unlimited".into())
-        ));
+    let Some(old_items) = kv.get("items").json::<items::ShopItems>().await? else {
+        console_debug!("No old items found, storing new items");
+        kv.put("items", &available_items)?.execute().await?;
+        return Ok("No old items found, storing new items".into());
+    };
+
+    // Compare the old items with the new items.
+    let mut result: Vec<String> = Vec::new();
+    for item in &available_items {
+        // TODO: not very efficient.
+        let old_item = old_items.iter().find(|i| i.id == item.id);
+
+        match old_item {
+            Some(old) => {
+                if let Some(diff) = format::format_diff(old, item) {
+                    result.push(diff);
+                }
+            }
+            None => {
+                result.push(format::format_new_item(item));
+            }
+        }
     }
 
-    Ok(result.join("\n"))
+    // Now, let's persist the items to the KV store.
+    kv.put("items", &available_items)?.execute().await?;
+
+    Ok(result.join("\n\n"))
 }

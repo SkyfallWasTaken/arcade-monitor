@@ -18,6 +18,8 @@ pub struct ShopItem {
 
     #[serde(rename = "Stock")]
     pub stock: Option<i32>,
+
+    pub id: String,
 }
 
 pub type ShopItems = Vec<ShopItem>;
