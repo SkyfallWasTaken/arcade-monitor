@@ -41,8 +41,20 @@ pub fn diff_items(old: ShopItem, new: ShopItem) -> Option<String> {
     Some(result.join("\n"))
 }
 
+pub fn format_new_item(item: ShopItem) -> String {
+    format!(
+        "*New item added:* {full_name}\n*Description:* {description}\n*Price:* {price}\n*Stock:* {stock}",
+        full_name = item.full_name,
+        description = item.description.unwrap_or("_not set_".into()),
+        price = item.price,
+        stock = item.stock
+            .map(|stock| stock.to_string())
+            .unwrap_or("Unlimited".into()),
+    )
+}
+
 #[cfg(test)]
-mod test {
+mod diff_tests {
     use super::*;
     use indoc::indoc;
 
