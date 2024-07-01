@@ -10,3 +10,7 @@ crons = ["0 * * * *"] # Run every hour
 
 [vars]
 ARCADE_SHOP_URL = "https://hackclub.com/arcade/shop/"
+
+[[kv_namespaces]]
+binding = "SHOP_ITEMS"
+id = "5307e6b7af8b4d86ac6ad26a593ca4d2"
