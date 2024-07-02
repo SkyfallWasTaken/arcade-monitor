@@ -21,6 +21,14 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
         .await
 }
 
+#[event(scheduled)]
+pub async fn scheduled(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
+    run_scrape(env).await.expect(&format!(
+        "failed to run scheduled scrape: {}",
+        _event.schedule()
+    ));
+}
+
 async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
     let webhook_url = env.var("SLACK_WEBHOOK_URL")?.to_string();
