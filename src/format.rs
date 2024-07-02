@@ -61,6 +61,7 @@ pub fn format_new_item(item: &ShopItem) -> String {
 #[cfg(test)]
 mod format_new_tests {
     use super::*;
+    use indoc::indoc;
 
     #[test]
     fn item_formatted() {

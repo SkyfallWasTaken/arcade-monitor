@@ -23,10 +23,9 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
 
 #[event(scheduled)]
 pub async fn scheduled(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
-    run_scrape(env).await.expect(&format!(
-        "failed to run scheduled scrape: {}",
-        _event.schedule()
-    ));
+    run_scrape(env)
+        .await
+        .unwrap_or_else(|_| panic!("failed to run scheduled scrape: {}", _event.schedule()));
 }
 
 async fn run_scrape(env: Env) -> Result<String> {
@@ -54,7 +53,7 @@ async fn run_scrape(env: Env) -> Result<String> {
                 }
             }
             None => {
-                result.push(format::format_new_item(&item));
+                result.push(format::format_new_item(item));
             }
         }
     }
