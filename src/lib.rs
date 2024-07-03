@@ -58,6 +58,13 @@ async fn run_scrape(env: Env) -> Result<String> {
         }
     }
 
+    // Check if any items have been removed.
+    for item in &old_items {
+        if !available_items.iter().any(|i| i.id == item.id) {
+            result.push(format::format_deleted_item(item));
+        }
+    }
+
     // If there are any updates/new items, send a message to the Slack webhook.
     if result.is_empty() {
         return Ok("No changes detected".into());

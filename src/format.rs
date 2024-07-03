@@ -58,6 +58,17 @@ pub fn format_new_item(item: &ShopItem) -> String {
     }
 }
 
+pub fn format_deleted_item(item: &ShopItem) -> String {
+    formatdoc! {
+        "*Item DELETED:* {full_name}
+        *Description:* {description}
+        *Price:* {price}",
+        full_name = item.full_name,
+        description = item.description.as_ref().unwrap_or(&"_not set_".into()),
+        price = item.price,
+    }
+}
+
 #[cfg(test)]
 mod format_new_tests {
     use super::*;
