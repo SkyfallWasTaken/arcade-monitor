@@ -1,4 +1,5 @@
 use indoc::formatdoc;
+use items::ShopItems;
 use serde_json::json;
 use worker::*;
 
@@ -41,29 +42,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     };
 
     // Compare the old items with the new items.
-    let mut result: Vec<String> = Vec::new();
-    for item in &available_items {
-        // TODO: not very efficient.
-        let old_item = old_items.iter().find(|i| i.id == item.id);
-
-        match old_item {
-            Some(old) => {
-                if let Some(diff) = format::format_item_diff(old, item) {
-                    result.push(diff);
-                }
-            }
-            None => {
-                result.push(format::format_new_item(item));
-            }
-        }
-    }
-
-    // Check if any items have been removed.
-    for item in &old_items {
-        if !available_items.iter().any(|i| i.id == item.id) {
-            result.push(format::format_deleted_item(item));
-        }
-    }
+    let result = diff_old_new_items(&old_items, &available_items);
 
     // If there are any updates/new items, send a message to the Slack webhook.
     if result.is_empty() {
@@ -91,4 +70,32 @@ async fn run_scrape(env: Env) -> Result<String> {
     kv.put("items", &available_items)?.execute().await?;
 
     Ok(result.join("\n\n"))
+}
+
+fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {
+    let mut result: Vec<String> = Vec::new();
+    for item in &available_items {
+        // TODO: not very efficient.
+        let old_item = old_items.iter().find(|i| i.id == item.id);
+
+        match old_item {
+            Some(old) => {
+                if let Some(diff) = format::format_item_diff(old, item) {
+                    result.push(diff);
+                }
+            }
+            None => {
+                result.push(format::format_new_item(item));
+            }
+        }
+    }
+
+    // Check if any items have been removed.
+    for item in &old_items {
+        if !available_items.iter().any(|i| i.id == item.id) {
+            result.push(format::format_deleted_item(item));
+        }
+    }
+
+    result
 }
