@@ -103,8 +103,10 @@ fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<Strin
 #[cfg(test)]
 mod diff_old_new_items_tests {
     use super::*;
-    use indoc::indoc;
+
+    use indoc::formatdoc;
     use items::ShopItem;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn deleted_items_notification() {
@@ -130,9 +132,12 @@ mod diff_old_new_items_tests {
         assert_eq!(
             result[0],
             formatdoc! {
-                "*Item DELETED:* Item 2
-                *Description:* Description 2
-                *Price:* 200"
+                "*Item DELETED:* {full_name}
+                *Description:* {description}
+                *Price:* {price}",
+                full_name = item_2.full_name,
+                description = item_2.description.as_ref().unwrap_or(&"_not set_".into()),
+                price = item_2.price,
             }
         );
     }

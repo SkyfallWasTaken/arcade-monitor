@@ -73,6 +73,7 @@ pub fn format_deleted_item(item: &ShopItem) -> String {
 mod format_new_tests {
     use super::*;
     use indoc::indoc;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn item_formatted() {
