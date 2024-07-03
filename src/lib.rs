@@ -74,7 +74,7 @@ async fn run_scrape(env: Env) -> Result<String> {
 
 fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {
     let mut result: Vec<String> = Vec::new();
-    for item in &available_items {
+    for item in new_items {
         // TODO: not very efficient.
         let old_item = old_items.iter().find(|i| i.id == item.id);
 
@@ -91,11 +91,49 @@ fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<Strin
     }
 
     // Check if any items have been removed.
-    for item in &old_items {
-        if !available_items.iter().any(|i| i.id == item.id) {
+    for item in old_items {
+        if !new_items.iter().any(|i| i.id == item.id) {
             result.push(format::format_deleted_item(item));
         }
     }
 
     result
+}
+
+#[cfg(test)]
+mod diff_old_new_items_tests {
+    use super::*;
+    use indoc::indoc;
+    use items::ShopItem;
+
+    #[test]
+    fn deleted_items_notification() {
+        let item_1 = ShopItem {
+            full_name: "Item 1".into(),
+            description: Some("Description 1".into()),
+            id: "1".into(),
+            ..Default::default()
+        };
+        let item_2 = ShopItem {
+            full_name: "Item 2".into(),
+            description: Some("Description 2".into()),
+            id: "2".into(),
+            ..Default::default()
+        };
+
+        let old_items = vec![item_1.clone(), item_2.clone()];
+        let new_items = vec![item_1.clone()];
+
+        let result = diff_old_new_items(&old_items, &new_items);
+
+        assert_eq!(result.len(), 1);
+        assert_eq!(
+            result[0],
+            formatdoc! {
+                "*Item DELETED:* Item 2
+                *Description:* Description 2
+                *Price:* 200"
+            }
+        );
+    }
 }
