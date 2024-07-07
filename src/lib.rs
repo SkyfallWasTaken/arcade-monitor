@@ -31,7 +31,7 @@ pub async fn scheduled(event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
 
 async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
-    let webhook_url = env.var("SLACK_WEBHOOK_URL")?.to_string();
+    let webhook_url = env.secret("SLACK_WEBHOOK_URL")?.to_string();
     let kv = env.kv("SHOP_ITEMS")?;
 
     let available_items = items::try_fetch(shop_url).await?;
@@ -44,32 +44,30 @@ async fn run_scrape(env: Env) -> Result<String> {
     // Compare the old items with the new items.
     let result = diff_old_new_items(&old_items, &available_items);
 
-    // If there are any updates/new items, send a message to the Slack webhook.
+    // Check if there are any updates.
     if result.is_empty() {
         return Ok("No changes detected".into());
-    } else {
-        let message = formatdoc! {
-            "*Changes detected in the shop:*
-            {changes}",
-            changes = result.join("\n\n"),
-        };
-
-        let request = Request::new_with_init(
-            &webhook_url,
-            RequestInit::new()
-                .with_body(Some(serde_wasm_bindgen::to_value(
-                    &json!({ "text": message }),
-                )?))
-                .with_method(Method::Post),
-        )?;
-
-        Fetch::Request(request).send().await?;
     }
+    // If there are any updates/new items, send a message to the Slack webhook.
+    let message = formatdoc! {
+        "*Changes detected in the shop:*
+        {changes}",
+        changes = result.join("\n\n"),
+    };
+    let request = Request::new_with_init(
+        &webhook_url,
+        RequestInit::new()
+            .with_body(Some(serde_wasm_bindgen::to_value(
+                &json!({ "text": message }),
+            )?))
+            .with_method(Method::Post),
+    )?;
+    Fetch::Request(request).send().await?;
 
     // Now, let's persist the items to the KV store.
     kv.put("items", &available_items)?.execute().await?;
 
-    Ok(result.join("\n\n"))
+    Ok(message)
 }
 
 fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {

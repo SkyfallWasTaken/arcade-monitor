@@ -13,4 +13,4 @@ ARCADE_SHOP_URL = "https://hackclub.com/arcade/shop/"
 
 [[kv_namespaces]]
 binding = "SHOP_ITEMS"
-id = "5307e6b7af8b4d86ac6ad26a593ca4d2"
+id = "076e9724967c49619e34d180ebfb5e6a"
