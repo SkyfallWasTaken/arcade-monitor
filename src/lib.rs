@@ -33,6 +33,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
     let webhook_url = env.secret("SLACK_WEBHOOK_URL")?.to_string();
     let kv = env.kv("SHOP_ITEMS")?;
+    let client = reqwest::Client::new();
 
     let available_items = items::try_fetch(shop_url).await?;
     let Some(old_items) = kv.get("items").json::<items::ShopItems>().await? else {
@@ -48,21 +49,21 @@ async fn run_scrape(env: Env) -> Result<String> {
     if result.is_empty() {
         return Ok("No changes detected".into());
     }
+
     // If there are any updates/new items, send a message to the Slack webhook.
     let message = formatdoc! {
         "*Changes detected in the shop:*
         {changes}",
         changes = result.join("\n\n"),
     };
-    let request = Request::new_with_init(
-        &webhook_url,
-        RequestInit::new()
-            .with_body(Some(serde_wasm_bindgen::to_value(
-                &json!({ "text": message }),
-            )?))
-            .with_method(Method::Post),
-    )?;
-    Fetch::Request(request).send().await?;
+
+    let body = &json!({ "text": message });
+    client
+        .post(&webhook_url)
+        .body(body.to_string())
+        .send()
+        .await
+        .unwrap();
 
     // Now, let's persist the items to the KV store.
     kv.put("items", &available_items)?.execute().await?;

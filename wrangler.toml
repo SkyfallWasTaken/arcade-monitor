@@ -8,6 +8,9 @@ command = "cargo install worker-build && worker-build --release"
 [triggers]
 crons = ["0 * * * *"] # Run every hour
 
+[placement]
+mode = "smart"
+
 [vars]
 ARCADE_SHOP_URL = "https://hackclub.com/arcade/shop/"
 
