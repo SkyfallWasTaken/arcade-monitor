@@ -53,6 +53,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     // If there are any updates/new items, send a message to the Slack webhook.
     let message = formatdoc! {
         "*Changes detected in the shop:*
+        
         {changes}",
         changes = result.join("\n\n"),
     };
