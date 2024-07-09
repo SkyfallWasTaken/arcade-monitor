@@ -33,8 +33,9 @@ pub async fn try_fetch(shop_url: Url) -> Result<ShopItems> {
         .get(shop_url)
         .header("User-Agent", USER_AGENT)
         .send()
-        .await?;
-    let doc_html = response.text().await?;
+        .await
+        .unwrap();
+    let doc_html = response.text().await.unwrap();
 
     let doc = Html::parse_document(&doc_html);
     let selector = Selector::parse("#__NEXT_DATA__").unwrap();
