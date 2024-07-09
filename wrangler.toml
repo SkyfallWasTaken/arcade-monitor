@@ -6,7 +6,7 @@ compatibility_date = "2024-06-29"
 command = "cargo install worker-build && worker-build --release"
 
 [triggers]
-crons = ["0 * * * *"] # Run every hour
+crons = ["*/20 * * * *"] # Run every twenty minutes
 
 [placement]
 mode = "smart"

@@ -1,3 +1,4 @@
+use reqwest::Client;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use worker::*;
@@ -24,10 +25,17 @@ pub struct ShopItem {
 
 pub type ShopItems = Vec<ShopItem>;
 
-pub async fn try_fetch(shop_url: Url) -> Result<ShopItems> {
-    let mut response = Fetch::Url(shop_url).send().await?;
+const USER_AGENT: &str = "Arcade-Monitor/1.0 (+@SkyfallWasTaken)";
 
+pub async fn try_fetch(shop_url: Url) -> Result<ShopItems> {
+    let client = Client::new();
+    let response = client
+        .get(shop_url)
+        .header("User-Agent", USER_AGENT)
+        .send()
+        .await?;
     let doc_html = response.text().await?;
+
     let doc = Html::parse_document(&doc_html);
     let selector = Selector::parse("#__NEXT_DATA__").unwrap();
     let json: serde_json::Value = serde_json::from_str(
