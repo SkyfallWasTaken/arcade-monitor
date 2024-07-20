@@ -1,5 +1,6 @@
 use indoc::formatdoc;
 use items::ShopItems;
+use reqwest::Client;
 use serde_json::json;
 use worker::*;
 
@@ -9,37 +10,37 @@ mod items;
 #[event(fetch, respond_with_errors)]
 pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response> {
     console_error_panic_hook::set_once();
-
     let router = Router::new();
 
     router
-        .on_async("/", |_req, ctx| async move {
-            let body = run_scrape(ctx.env).await?;
-
-            Response::ok(body)
+        .on_async("/", |_req, _ctx| async move {
+            Response::redirect(
+                Url::parse("https://github.com/SkyfallWasTaken/arcade-monitor").unwrap(),
+            )
         })
         .run(req, env)
         .await
 }
 
 #[event(scheduled)]
-pub async fn scheduled(event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
-    run_scrape(env)
+pub async fn scheduled(event: ScheduledEvent, env: Env, ctx: ScheduleContext) {
+    run_scrape(env, ctx)
         .await
         .unwrap_or_else(|_| panic!("failed to run scheduled scrape: {}", event.schedule()));
 }
 
-async fn run_scrape(env: Env) -> Result<String> {
+async fn run_scrape(env: Env, ctx: ScheduleContext) -> Result<()> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
-    let webhook_url = env.secret("SLACK_WEBHOOK_URL")?.to_string();
+    let slack_webhook_url = env.secret("SLACK_WEBHOOK_URL")?.to_string();
+    let ntfy_url = env.secret("NTFY_URL")?.to_string();
+
     let kv = env.kv("SHOP_ITEMS")?;
-    let client = reqwest::Client::new();
 
     let available_items = items::try_fetch(shop_url).await?;
     let Some(old_items) = kv.get("items").json::<items::ShopItems>().await? else {
         console_debug!("No old items found, storing new items");
         kv.put("items", &available_items)?.execute().await?;
-        return Ok("No old items found, storing new items".into());
+        return Ok(());
     };
 
     // Compare the old items with the new items.
@@ -47,7 +48,8 @@ async fn run_scrape(env: Env) -> Result<String> {
 
     // Check if there are any updates.
     if result.is_empty() {
-        return Ok("No changes detected".into());
+        console_debug!("No changes detected");
+        return Ok(());
     }
 
     // If there are any updates/new items, send a message to the Slack webhook.
@@ -58,18 +60,35 @@ async fn run_scrape(env: Env) -> Result<String> {
         changes = result.join("\n\n"),
     };
 
-    let body = &json!({ "text": message });
-    client
-        .post(&webhook_url)
-        .body(body.to_string())
-        .send()
-        .await
-        .unwrap();
+    let message_for_slack = message.to_owned();
+    let message_for_ntfy = message.to_owned();
+
+    ctx.wait_until(async move {
+        // Slack webhook
+        let client = Client::new();
+        let body = &json!({ "text": message_for_slack });
+        client
+            .post(&slack_webhook_url)
+            .body(body.to_string())
+            .send()
+            .await
+            .unwrap();
+    });
+    ctx.wait_until(async move {
+        // ntfy notification
+        let client = Client::new();
+        client
+            .post(ntfy_url)
+            .body(message_for_ntfy)
+            .send()
+            .await
+            .unwrap();
+    });
 
     // Now, let's persist the items to the KV store.
     kv.put("items", &available_items)?.execute().await?;
 
-    Ok(message)
+    Ok(())
 }
 
 fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {
