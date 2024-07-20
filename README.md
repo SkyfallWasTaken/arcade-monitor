@@ -2,6 +2,13 @@
 
 **\#arcade-monitor** is a monitor for the [Hack Club Arcade Shop.](https://hackclub.com/arcade/shop/) It continuously checks for new items, stock changes, and item updates, keeping you in the loop on the stuff you want.
 
+## Environment variables
+### Secrets
+- `SLACK_WEBHOOK_URL` - Slack webhook to call on updates
+
+## Variables
+- `ARCADE_SHOP_URL` - Shop URL to fetch
+
 ## Tech Stack
 - **Cloudflare Workers** for running the monitor on the edge.
 - **Rust** for the monitor's code. I love its type safety, as well as libraries such as `serde`.
