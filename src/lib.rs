@@ -47,12 +47,6 @@ async fn run_scrape(env: Env) -> Result<String> {
         kv.put("items", &available_items)?.execute().await?;
         return Ok("No old items found, storing new items".into());
     };
-    let available_items = vec![items::ShopItem {
-        full_name: "Item 1".into(),
-        description: Some("Description 1".into()),
-        id: "1".into(),
-        ..Default::default()
-    }];
 
     // Compare the old items with the new items.
     let result = diff_old_new_items(&old_items, &available_items);
