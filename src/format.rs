@@ -31,8 +31,12 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
     if old.fulfillment_description != new.fulfillment_description {
         result.push(format!(
             "*Fulfillment info:* {} → {}",
-            old.description.as_ref().unwrap_or(&"_not set_".into()),
-            new.description.as_ref().unwrap_or(&"_not set_".into())
+            old.fulfillment_description
+                .as_ref()
+                .unwrap_or(&"_not set_".into()),
+            new.fulfillment_description
+                .as_ref()
+                .unwrap_or(&"_not set_".into())
         ));
     }
 
