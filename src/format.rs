@@ -59,10 +59,12 @@ pub fn format_new_item(item: &ShopItem) -> String {
     formatdoc! {
         "*New item added:* {full_name}
         *Description:* {description}
+        *Fulfillment info:* {fullfilment_info}
         *Price:* {price}
         *Stock:* {stock}",
         full_name = item.full_name,
         description = item.description.as_ref().unwrap_or(&"_not set_".into()),
+        fullfilment_info = item.fulfillment_description.as_ref().unwrap_or(&"_not set_".into()),
         price = item.price,
         stock = item.stock
             .map(|stock| stock.to_string())
@@ -92,6 +94,7 @@ mod format_new_tests {
         let item = ShopItem {
             full_name: "Test".into(),
             description: Some("Lorem ipsum".into()),
+            fulfillment_description: Some("Dolor sit amet".into()),
             price: 1,
             stock: Some(10),
             ..Default::default()
@@ -102,6 +105,7 @@ mod format_new_tests {
             indoc! {"
             *New item added:* Test
             *Description:* Lorem ipsum
+            *Fulfillment info:* Dolor sit amet
             *Price:* 1
             *Stock:* 10"}
         );
