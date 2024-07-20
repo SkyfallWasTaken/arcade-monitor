@@ -16,6 +16,10 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
         result.push(format!("*Name:* {}", new.full_name));
     }
 
+    if old.price != new.price {
+        result.push(format!("*Price:* {} → {}", old.price, new.price));
+    }
+
     if old.description != new.description {
         result.push(format!(
             "*Description:* {} → {}",
@@ -24,8 +28,12 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
         ));
     }
 
-    if old.price != new.price {
-        result.push(format!("*Price:* {} → {}", old.price, new.price));
+    if old.fulfillment_description != new.fulfillment_description {
+        result.push(format!(
+            "*Fulfillment info:* {} → {}",
+            old.description.as_ref().unwrap_or(&"_not set_".into()),
+            new.description.as_ref().unwrap_or(&"_not set_".into())
+        ));
     }
 
     if old.stock != new.stock {
@@ -221,6 +229,31 @@ mod diff_tests {
                 indoc! {"
                 *Name:* Test
                 *Stock:* Unlimited → 10"}
+                .into()
+            )
+        );
+    }
+
+    #[test]
+    fn test_fulfillment_info() {
+        let old = ShopItem {
+            full_name: "Test".into(),
+            fulfillment_description: Some("Lorem ipsum".into()),
+            ..Default::default()
+        };
+
+        let new = ShopItem {
+            full_name: "Test".into(),
+            fulfillment_description: Some("Dolor sit amet".into()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            format_item_diff(&old, &new),
+            Some(
+                indoc! {"
+                *Name:* Test
+                *Fulfillment info:* Lorem ipsum → Dolor sit amet"}
                 .into()
             )
         );
