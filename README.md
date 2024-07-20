@@ -5,10 +5,11 @@
 ## Environment variables
 ### Secrets
 - `SLACK_WEBHOOK_URL` - Slack webhook to call on updates
-- `NTFY_URL` - URL for ntfy
+- `NTFY_AUTH_TOKEN` - Auth token for ntfy
 
 ### Variables
 - `ARCADE_SHOP_URL` - Shop URL to fetch
+- `NTFY_URL` - URL for ntfy
 
 ## Tech Stack
 - **Cloudflare Workers** for running the monitor on the edge.

@@ -36,7 +36,8 @@ pub async fn scheduled(event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
 async fn run_scrape(env: Env) -> Result<String> {
     let shop_url = Url::parse(&env.var("ARCADE_SHOP_URL")?.to_string())?;
     let slack_webhook_url = env.secret("SLACK_WEBHOOK_URL")?.to_string();
-    let ntfy_url = env.secret("NTFY_URL")?.to_string();
+    let ntfy_url = env.var("NTFY_URL")?.to_string();
+    let ntfy_auth_token = env.secret("NTFY_AUTH_TOKEN")?.to_string();
     let client = Client::new();
 
     let kv = env.kv("SHOP_ITEMS")?;
@@ -77,6 +78,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     // ntfy webhook
     client
         .post(ntfy_url)
+        .bearer_auth(ntfy_auth_token)
         .header("X-Title", "Changes detected in Arcade Shop")
         .header("X-Priority", "high")
         .body(changes)

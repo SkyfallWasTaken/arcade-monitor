@@ -12,6 +12,7 @@ crons = ["*/20 * * * *"] # Run every twenty minutes
 mode = "smart"
 
 [vars]
+NTFY_URL = "https://ntfy.hackclub.app/arcade-monitor"
 ARCADE_SHOP_URL = "https://hackclub.com/arcade/shop/"
 
 [[kv_namespaces]]
