@@ -58,18 +58,15 @@ async fn run_scrape(env: Env) -> Result<String> {
     }
 
     // If there are any updates/new items, send a message to the Slack webhook.
-    let message = formatdoc! {
+    let changes = result.join("\n\n");
+    let slack_message = formatdoc! {
         "*Changes detected in the shop:*
         
-        {changes}",
-        changes = result.join("\n\n"),
+        {changes}"
     };
 
-    let message_for_slack = message.to_owned();
-    let message_for_ntfy = message.to_owned();
-
     // slack webhook
-    let body = &json!({ "text": message_for_slack });
+    let body = &json!({ "text": slack_message });
     client
         .post(&slack_webhook_url)
         .body(body.to_string())
@@ -80,7 +77,9 @@ async fn run_scrape(env: Env) -> Result<String> {
     // ntfy webhook
     client
         .post(ntfy_url)
-        .body(message_for_ntfy)
+        .header("X-Title", "Changes detected in Arcade Shop")
+        .header("X-Priority", "high")
+        .body(changes)
         .send()
         .await
         .unwrap();
@@ -88,7 +87,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     // Now, let's persist the items to the KV store.
     kv.put("items", &available_items)?.execute().await?;
 
-    Ok(message)
+    Ok(slack_message)
 }
 
 fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {
