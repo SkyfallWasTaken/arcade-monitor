@@ -155,6 +155,14 @@ mod slack_tests {
             json!({
                 "blocks": [
                     {
+                        "type": "header",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Changes detected in the shop",
+                            "emoji": true
+                        }
+                    },
+                    {
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
