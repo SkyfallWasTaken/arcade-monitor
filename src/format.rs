@@ -104,7 +104,7 @@ pub fn format_deleted_item(item: &ShopItem) -> String {
     }
 }
 
-pub fn get_slack_body(diffs: &Vec<String>) -> serde_json::Value {
+pub fn get_slack_body(diffs: &Vec<String>, slack_group_id: String) -> serde_json::Value {
     let mut blocks_vec = vec![];
     blocks_vec.push(json!({
         "type": "header",
@@ -131,7 +131,10 @@ pub fn get_slack_body(diffs: &Vec<String>) -> serde_json::Value {
         "elements": [
             {
                 "type": "mrkdwn",
-                "text": format!("Arcade Monitor v{}", env!("CARGO_PKG_VERSION").to_string()) // Will never panic, variable is always set by Cargo
+                "text": format!(
+                    "<!subteam^{slack_group_id}> Arcade Monitor v{version}",
+                    version = env!("CARGO_PKG_VERSION").to_string()
+                ) // Will never panic, variable is always set by Cargo
             }
         ]
     }));
@@ -147,9 +150,14 @@ mod slack_tests {
     use pretty_assertions::assert_eq;
     use serde_json::json;
 
+    const SLACK_GROUP_ID: &str = "ABCDEFG";
+
     #[test]
     fn slack_body_is_correct() {
-        let body = get_slack_body(&vec!["Test 1".into(), "Test 2".into(), "Test 3".into()]);
+        let body = get_slack_body(
+            &vec!["Test 1".into(), "Test 2".into(), "Test 3".into()],
+            SLACK_GROUP_ID.into(),
+        );
         assert_eq!(
             body,
             json!({
@@ -197,7 +205,7 @@ mod slack_tests {
                         "elements": [
                             {
                                 "type": "mrkdwn",
-                                "text": format!("Arcade Monitor v{}", env!("CARGO_PKG_VERSION"))
+                                "text": format!("<!subteam^{SLACK_GROUP_ID}> Arcade Monitor v{}", env!("CARGO_PKG_VERSION"))
                             }
                         ]
                     }

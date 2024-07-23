@@ -36,6 +36,8 @@ async fn run_scrape(env: Env) -> Result<String> {
     let slack_webhook_url = env.secret("SLACK_WEBHOOK_URL")?.to_string();
     let ntfy_url = env.var("NTFY_URL")?.to_string();
     let ntfy_auth_token = env.secret("NTFY_AUTH_TOKEN")?.to_string();
+    let slack_group_id = env.var("SLACK_GROUP_ID")?.to_string();
+
     let client = Client::new();
 
     let kv = env.kv("SHOP_ITEMS")?;
@@ -60,7 +62,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     let changes = result.join("\n\n");
 
     // slack webhook
-    let slack_body = format::get_slack_body(&result);
+    let slack_body = format::get_slack_body(&result, slack_group_id);
     client
         .post(&slack_webhook_url)
         .body(slack_body.to_string())
