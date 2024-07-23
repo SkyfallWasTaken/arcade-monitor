@@ -18,7 +18,16 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
     }
 
     if old.price != new.price {
-        result.push(format!("*Price:* {} → {}", old.price, new.price));
+        result.push(format!(
+            "*Price:* {} → {} {}",
+            old.price,
+            new.price,
+            if old.price > new.price {
+                "🔽"
+            } else {
+                "🔼"
+            }
+        ));
     }
 
     if old.description != new.description {
@@ -43,13 +52,22 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
 
     if old.stock != new.stock {
         result.push(format!(
-            "*Stock:* {} → {}",
+            "*Stock:* {} → {}{}",
             old.stock
                 .map(|stock| stock.to_string())
                 .unwrap_or("Unlimited".into()),
             new.stock
                 .map(|stock| stock.to_string())
-                .unwrap_or("Unlimited".into())
+                .unwrap_or("Unlimited".into()),
+            if let (Some(old_stock), Some(new_stock)) = (old.stock, new.stock) {
+                if old_stock > new_stock {
+                    " 🔽"
+                } else {
+                    " 🔼"
+                }
+            } else {
+                ""
+            }
         ));
     }
 
@@ -58,7 +76,9 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
 
 pub fn format_new_item(item: &ShopItem) -> String {
     formatdoc! {
-        "*New item added:* {full_name}
+        "*New item added*
+
+        *Name:* {full_name}
         *Description:* {description}
         *Fulfillment info:* {fullfilment_info}
         *Price:* {price}
@@ -191,7 +211,9 @@ mod format_new_tests {
         assert_eq!(
             format_new_item(&item),
             indoc! {"
-            *New item added:* Test
+            *New item added*
+
+            *Name:* Test
             *Description:* Lorem ipsum
             *Fulfillment info:* Dolor sit amet
             *Price:* 1
@@ -225,7 +247,7 @@ mod diff_tests {
             Some(
                 indoc! {"
                 *Name:* Test
-                *Price:* 1 → 2"}
+                *Price:* 1 → 2 🔼"}
                 .into()
             )
         );
@@ -275,7 +297,7 @@ mod diff_tests {
             Some(
                 indoc! {"
                 *Name:* Test
-                *Stock:* 10 → 9"}
+                *Stock:* 10 → 9 🔽"}
                 .into()
             )
         );
