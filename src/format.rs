@@ -1,4 +1,5 @@
 use indoc::formatdoc;
+use serde_json::json;
 
 use crate::items::ShopItem;
 
@@ -81,6 +82,35 @@ pub fn format_deleted_item(item: &ShopItem) -> String {
         description = item.description.as_ref().unwrap_or(&"_not set_".into()),
         price = item.price,
     }
+}
+
+pub fn get_slack_blocks(diffs: &Vec<String>) -> serde_json::Value {
+    let mut blocks_vec = vec![];
+    for diff in diffs {
+        blocks_vec.push(json!({
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": diff
+            }
+        }));
+        blocks_vec.push(json!({
+            "type": "divider"
+        }));
+    }
+    blocks_vec.push(json!({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": format!("Arcade Monitor v{}", env!("CARGO_PKG_VERSION").to_string()) // Will never panic, variable is always set by Cargo
+            }
+        ]
+    }));
+
+    json!({
+        "blocks": blocks_vec,
+    })
 }
 
 #[cfg(test)]

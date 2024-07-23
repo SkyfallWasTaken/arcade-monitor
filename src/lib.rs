@@ -1,6 +1,5 @@
 use items::ShopItems;
 use reqwest::Client;
-use serde_json::json;
 use worker::*;
 
 mod format;
@@ -61,32 +60,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     let changes = result.join("\n\n");
 
     // slack webhook
-    let mut blocks_vec = vec![];
-    for diff in &result {
-        blocks_vec.push(json!({
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": diff
-            }
-        }));
-        blocks_vec.push(json!({
-            "type": "divider"
-        }));
-    }
-    blocks_vec.push(json!({
-        "type": "context",
-        "elements": [
-            {
-                "type": "mrkdwn",
-                "text": format!("Arcade Monitor v{}", env.var("CARGO_PKG_VERSION")?.to_string())
-            }
-        ]
-    }));
-
-    let slack_body = &json!({
-        "blocks": blocks_vec,
-    });
+    let slack_body = format::get_slack_blocks(&result);
     client
         .post(&slack_webhook_url)
         .body(slack_body.to_string())
