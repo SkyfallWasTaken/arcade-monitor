@@ -68,6 +68,8 @@ async fn run_scrape(env: Env) -> Result<String> {
         .body(slack_body.to_string())
         .send()
         .await
+        .unwrap()
+        .error_for_status()
         .unwrap();
 
     // ntfy webhook
