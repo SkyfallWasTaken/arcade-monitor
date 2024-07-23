@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use items::ShopItems;
 use reqwest::Client;
 use worker::*;
@@ -48,9 +50,13 @@ async fn run_scrape(env: Env) -> Result<String> {
         kv.put("items", &available_items)?.execute().await?;
         return Ok("No old items found, storing new items".into());
     };
+    let Some(real_prices) = kv.get("real_prices").json::<HashMap<String, i32>>().await? else {
+        console_debug!("No real prices found!");
+        return Err("No real prices found! This is a bug.".into());
+    };
 
     // Compare the old items with the new items.
-    let result = diff_old_new_items(&old_items, &available_items);
+    let result = diff_old_new_items(&old_items, &available_items, real_prices);
 
     // Check if there are any updates.
     if result.is_empty() {
@@ -89,7 +95,11 @@ async fn run_scrape(env: Env) -> Result<String> {
     Ok(result.join("\n\n"))
 }
 
-fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {
+fn diff_old_new_items(
+    old_items: &ShopItems,
+    new_items: &ShopItems,
+    real_prices: HashMap<String, i32>,
+) -> Vec<String> {
     let mut result: Vec<String> = Vec::new();
     for item in new_items {
         // TODO: not very efficient.
@@ -97,7 +107,7 @@ fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<Strin
 
         match old_item {
             Some(old) => {
-                if let Some(diff) = format::format_item_diff(old, item) {
+                if let Some(diff) = format::format_item_diff(old, item, real_prices.get(&item.id)) {
                     result.push(diff);
                 }
             }
@@ -123,6 +133,7 @@ mod diff_old_new_items_tests {
 
     use indoc::formatdoc;
     use items::ShopItem;
+    use maplit::hashmap;
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -130,12 +141,14 @@ mod diff_old_new_items_tests {
         let item_1 = ShopItem {
             full_name: "Item 1".into(),
             description: Some("Description 1".into()),
+            price: 200,
             id: "1".into(),
             ..Default::default()
         };
         let item_2 = ShopItem {
             full_name: "Item 2".into(),
             description: Some("Description 2".into()),
+            price: 50,
             id: "2".into(),
             ..Default::default()
         };
@@ -143,7 +156,14 @@ mod diff_old_new_items_tests {
         let old_items = vec![item_1.clone(), item_2.clone()];
         let new_items = vec![item_1.clone()];
 
-        let result = diff_old_new_items(&old_items, &new_items);
+        let result = diff_old_new_items(
+            &old_items,
+            &new_items,
+            hashmap! {
+                "1".into() => 100,
+                "2".into() => 200,
+            },
+        );
 
         assert_eq!(result.len(), 1);
         assert_eq!(

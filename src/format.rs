@@ -3,7 +3,11 @@ use serde_json::json;
 
 use crate::items::ShopItem;
 
-pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
+pub fn format_item_diff(
+    old: &ShopItem,
+    new: &ShopItem,
+    real_price: Option<&i32>,
+) -> Option<String> {
     if old == new {
         // The items are the exact same
         return None;
@@ -19,13 +23,21 @@ pub fn format_item_diff(old: &ShopItem, new: &ShopItem) -> Option<String> {
 
     if old.price != new.price {
         result.push(format!(
-            "*Price:* {} → {} {}",
+            "*Price:* {} → {} {}{}",
             old.price,
             new.price,
             if old.price > new.price {
                 "🔽"
             } else {
                 "🔼"
+            },
+            if let Some(real_price) = real_price {
+                format!(
+                    " _(${real_price} - ${}/hr)_",
+                    (*real_price as f32) / (new.price as f32)
+                )
+            } else {
+                "".into()
             }
         ));
     }
@@ -257,21 +269,23 @@ mod diff_tests {
         let old = ShopItem {
             full_name: "Test".into(),
             price: 1,
+            id: "1".into(),
             ..Default::default()
         };
 
         let new = ShopItem {
             full_name: "Test".into(),
             price: 2,
+            id: "1".into(),
             ..Default::default()
         };
 
         assert_eq!(
-            format_item_diff(&old, &new),
+            format_item_diff(&old, &new, Some(&50)), // Let's say it's $50
             Some(
                 indoc! {"
                 *Name:* Test
-                *Price:* 1 → 2 🔼"}
+                *Price:* 1 → 2 🔼 _($50 - $25/hr)_"}
                 .into()
             )
         );
@@ -282,17 +296,19 @@ mod diff_tests {
         let old = ShopItem {
             full_name: "Test".into(),
             description: Some("Lorem ipsum".into()),
+            price: 2,
             ..Default::default()
         };
 
         let new = ShopItem {
             full_name: "Test".into(),
             description: Some("Dolor sit amet".into()),
+            price: 2,
             ..Default::default()
         };
 
         assert_eq!(
-            format_item_diff(&old, &new),
+            format_item_diff(&old, &new, Some(&50)),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -317,7 +333,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            format_item_diff(&old, &new),
+            format_item_diff(&old, &new, Some(&50)),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -332,17 +348,19 @@ mod diff_tests {
         let old = ShopItem {
             full_name: "Test".into(),
             stock: Some(10),
+            price: 2,
             ..Default::default()
         };
 
         let new = ShopItem {
             full_name: "Test".into(),
             stock: None,
+            price: 2,
             ..Default::default()
         };
 
         assert_eq!(
-            format_item_diff(&old, &new),
+            format_item_diff(&old, &new, Some(&50)),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -367,7 +385,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            format_item_diff(&old, &new),
+            format_item_diff(&old, &new, Some(&50)),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -392,7 +410,7 @@ mod diff_tests {
         };
 
         assert_eq!(
-            format_item_diff(&old, &new),
+            format_item_diff(&old, &new, Some(&50)),
             Some(
                 indoc! {"
                 *Name:* Test
@@ -410,6 +428,6 @@ mod diff_tests {
             ..Default::default()
         };
 
-        assert_eq!(format_item_diff(&item, &item), None);
+        assert_eq!(format_item_diff(&item, &item, Some(&50)), None);
     }
 }

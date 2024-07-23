@@ -12,6 +12,10 @@
 - `NTFY_URL` - URL for ntfy
 - `SLACK_GROUP_ID` - ID of the Slack group to ping
 
+## Key-value keys
+- `real_prices` - stores the real-world prices of items. equivalent to a `HashMap<String, i32>`, where `String` is the `id` parameter. prices are in USD.
+- `items` - stores old items (you don't need to worry about this one)
+
 ## Tech Stack
 - **Cloudflare Workers** for running the monitor on the edge.
 - **Rust** for the monitor's code. I love its type safety, as well as libraries such as `serde`.
