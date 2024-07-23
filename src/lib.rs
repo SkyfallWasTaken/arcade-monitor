@@ -1,4 +1,3 @@
-use indoc::formatdoc;
 use items::ShopItems;
 use reqwest::Client;
 use serde_json::json;
@@ -60,17 +59,37 @@ async fn run_scrape(env: Env) -> Result<String> {
 
     // If there are any updates/new items, send a message to the Slack webhook.
     let changes = result.join("\n\n");
-    let slack_message = formatdoc! {
-        "*Changes detected in the shop:*
-        
-        {changes}"
-    };
 
     // slack webhook
-    let body = &json!({ "text": slack_message });
+    let mut blocks_vec = vec![];
+    for diff in &result {
+        blocks_vec.push(json!({
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": diff
+            }
+        }));
+        blocks_vec.push(json!({
+            "type": "divider"
+        }));
+    }
+    blocks_vec.push(json!({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": format!("Arcade Monitor v{}", env.var("CARGO_PKG_VERSION")?.to_string())
+            }
+        ]
+    }));
+
+    let slack_body = &json!({
+        "blocks": blocks_vec,
+    });
     client
         .post(&slack_webhook_url)
-        .body(body.to_string())
+        .body(slack_body.to_string())
         .send()
         .await
         .unwrap();
@@ -89,7 +108,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     // Now, let's persist the items to the KV store.
     kv.put("items", &available_items)?.execute().await?;
 
-    Ok(slack_message)
+    Ok(result.join("\n\n"))
 }
 
 fn diff_old_new_items(old_items: &ShopItems, new_items: &ShopItems) -> Vec<String> {
