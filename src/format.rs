@@ -106,6 +106,14 @@ pub fn format_deleted_item(item: &ShopItem) -> String {
 
 pub fn get_slack_body(diffs: &Vec<String>) -> serde_json::Value {
     let mut blocks_vec = vec![];
+    blocks_vec.push(json!({
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+            "text": "Changes detected in the shop",
+            "emoji": true
+        }
+    }));
     for diff in diffs {
         blocks_vec.push(json!({
             "type": "section",
