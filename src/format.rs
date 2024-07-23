@@ -67,10 +67,10 @@ pub fn format_item_diff(
             "*Stock:* {} → {}{}",
             old.stock
                 .map(|stock| stock.to_string())
-                .unwrap_or("Unlimited".into()),
+                .unwrap_or_else(|| "Unlimited".into()),
             new.stock
                 .map(|stock| stock.to_string())
-                .unwrap_or("Unlimited".into()),
+                .unwrap_or_else(|| "Unlimited".into()),
             if let (Some(old_stock), Some(new_stock)) = (old.stock, new.stock) {
                 if old_stock > new_stock {
                     " 🔽"
@@ -101,7 +101,7 @@ pub fn format_new_item(item: &ShopItem) -> String {
         price = item.price,
         stock = item.stock
             .map(|stock| stock.to_string())
-            .unwrap_or("Unlimited".into()),
+            .unwrap_or_else(|| "Unlimited".into()),
     }
 }
 
