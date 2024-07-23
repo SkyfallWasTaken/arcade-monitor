@@ -84,7 +84,7 @@ pub fn format_deleted_item(item: &ShopItem) -> String {
     }
 }
 
-pub fn get_slack_blocks(diffs: &Vec<String>) -> serde_json::Value {
+pub fn get_slack_body(diffs: &Vec<String>) -> serde_json::Value {
     let mut blocks_vec = vec![];
     for diff in diffs {
         blocks_vec.push(json!({
@@ -111,6 +111,64 @@ pub fn get_slack_blocks(diffs: &Vec<String>) -> serde_json::Value {
     json!({
         "blocks": blocks_vec,
     })
+}
+
+#[cfg(test)]
+mod slack_tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn slack_body_is_correct() {
+        let body = get_slack_body(&vec!["Test 1".into(), "Test 2".into(), "Test 3".into()]);
+        assert_eq!(
+            body,
+            json!({
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Test 1"
+                        }
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Test 2"
+                        }
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Test 3"
+                        }
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "mrkdwn",
+                                "text": format!("Arcade Monitor v{}", env!("CARGO_PKG_VERSION"))
+                            }
+                        ]
+                    }
+                ]
+            })
+        )
+    }
 }
 
 #[cfg(test)]
@@ -146,6 +204,7 @@ mod format_new_tests {
 mod diff_tests {
     use super::*;
     use indoc::indoc;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn price_diff() {

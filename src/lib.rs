@@ -60,7 +60,7 @@ async fn run_scrape(env: Env) -> Result<String> {
     let changes = result.join("\n\n");
 
     // slack webhook
-    let slack_body = format::get_slack_blocks(&result);
+    let slack_body = format::get_slack_body(&result);
     client
         .post(&slack_webhook_url)
         .body(slack_body.to_string())
