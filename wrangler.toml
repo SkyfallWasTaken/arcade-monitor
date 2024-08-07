@@ -14,7 +14,7 @@ mode = "smart"
 [vars]
 NTFY_URL = "https://ntfy.hackclub.app/arcade-monitor"
 ARCADE_SHOP_URL = "https://hackclub.com/arcade/shop/"
-SLACK_GROUP_ID = "S07B2CBT2DV"
+SLACK_GROUP_ID = "Pings disabled."
 
 [[kv_namespaces]]
 binding = "SHOP_ITEMS"
