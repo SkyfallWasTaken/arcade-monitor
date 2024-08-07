@@ -33,7 +33,7 @@ pub fn format_item_diff(
             },
             if let Some(real_price) = real_price {
                 format!(
-                    " _(${real_price} - ${}/hr)_",
+                    " _(${real_price} - ${:.2}/hr)_",
                     (*real_price as f32) / (new.price as f32)
                 )
             } else {
@@ -285,7 +285,7 @@ mod diff_tests {
             Some(
                 indoc! {"
                 *Name:* Test
-                *Price:* 1 → 2 🔼 _($50 - $25/hr)_"}
+                *Price:* 1 → 2 🔼 _($50 - $25.00/hr)_"}
                 .into()
             )
         );
