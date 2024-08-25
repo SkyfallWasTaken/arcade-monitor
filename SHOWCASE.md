@@ -10,8 +10,23 @@ If I were to make this project again, I'd probably port it to more platforms, su
 
 Arcade Monitor is also fully open source, and licensed under the [MIT License!](https://github.com/SkyfallWasTaken/arcade-monitor/blob/main/LICENSE.md)
 
-## A history lesson (if you're into that sort of thing :))
+## Usage on Slack
+_(note: you'll need to be a member of the [Hack Club Slack](https://hackclub.com/slack/) for this!)_
 
+Using the bot with Slack is really easy! Just join the [#arcade-monitor channel](https://hackclub.slack.com/archives/C079RG9HJ81), and you'll be added to the Arcade Monitor user group. You'll now be pinged for every update!
+
+## Usage with ntfy
+
+You'll need [the ntfy app](https://ntfy.sh) for this!
+
+Once you have the app, set the server URL to `https://ntfy.hackclub.app`, and the topic to `arcade-monitor`.
+
+That's it! You'll now receive a notification for every shop update.
+
+## A history lesson (if you're into that sort of thing :))
+<details>
+<summary>Click for more details...</summary>
+	
 ### The first version
 
 The first version of Arcade Monitor was a Cloudflare Worker written in TypeScript. In hindsight, a lot of the code was needlessly complicated, and the bot was _severely_ buggy. Take a look at this:
@@ -155,6 +170,8 @@ Three hours later... it worked!
 Since then, most of the changes have been things like the ticket/price ratio or prettier Slack messages that use Block Kit. 
 
 Overall, I'd call the Rust rewrite a huge success!
+
+</details>
 
 ---
 
