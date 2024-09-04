@@ -1,14 +1,18 @@
 # Arcade Monitor: HC's beloved shop ~stalker~ monitor
 
-<img src="https://github.com/user-attachments/assets/3fe6199a-7d82-4620-ad40-9ab2c10044da" align="left" width="238" style="padding-right: 3rem"/>
+<img src="https://github.com/user-attachments/assets/3fe6199a-7d82-4620-ad40-9ab2c10044da" align="left" width="246" style="padding-right: 3rem"/>
 
-Arcade Monitor is a **monitor for the Hack Club Arcade Shop.** It continuously checks for new items, stock changes, and item updates, keeping you in the loop on the stuff you want. It chatters away in the [#arcade-monitor channel](https://hackclub.slack.com/archives/C079RG9HJ81) to over 350 members across Slack and ntfy.
+Arcade Monitor was a **monitor for the Hack Club Arcade Shop.** It continuously checked for new items, stock changes, and item updates, keeping you in the loop on the stuff you want. At its peak, it chattered away in the [#arcade-monitor channel](https://hackclub.slack.com/archives/C079RG9HJ81) to over 400 members across Slack and ntfy.
 
-This has been one of my most successful projects: I managed to get 350 active users of the channel, including many from Hack Club HQ, got third-party contributions to my project for the first time, and managed to get 55 stars, by far my most starred project on GitHub _(will you be the next stargazer? 😉)_
+This has been one of my most successful projects: I managed to get 400 active users of the channel, including many from Hack Club HQ, got third-party contributions to my project for the first time, and managed to nearly 60 stars, by far my most starred project on GitHub _(will you be the next stargazer? 😉)_
 
 If I were to make this project again, I'd probably port it to more platforms, such as Discord webhooks, in order to make it possible for people to use the software they want to use, rather than being forced to use Slack or ntfy :)
 
 Arcade Monitor is also fully open source, and licensed under the [MIT License!](https://github.com/SkyfallWasTaken/arcade-monitor/blob/main/LICENSE.md)
+
+The rest of the readme has been archived for posterity. Thank you everyone who checked out Arcade Monitor!
+
+---
 
 ## Usage on Slack
 _(note: you'll need to be a member of the [Hack Club Slack](https://hackclub.com/slack/) for this!)_
