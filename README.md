@@ -14,12 +14,13 @@ The rest of the readme has been archived for posterity. Thank you to everyone wh
 
 ---
 
-## Usage on Slack
+## Usage
+### Usage on Slack
 _(note: you'll need to be a member of the [Hack Club Slack](https://hackclub.com/slack/) for this!)_
 
 Using the bot with Slack is really easy! Just join the [#arcade-monitor channel](https://hackclub.slack.com/archives/C079RG9HJ81), and you'll be added to the Arcade Monitor user group. You'll now be pinged for every update!
 
-## Usage with ntfy
+### Usage with ntfy
 
 You'll need [the ntfy app](https://ntfy.sh) for this!
 
