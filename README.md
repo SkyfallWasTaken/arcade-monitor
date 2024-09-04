@@ -10,7 +10,7 @@ If I were to make this project again, I'd probably port it to more platforms, su
 
 Arcade Monitor is also fully open source, and licensed under the [MIT License!](https://github.com/SkyfallWasTaken/arcade-monitor/blob/main/LICENSE.md)
 
-The rest of the readme has been archived for posterity. Thank you everyone who checked out Arcade Monitor!
+The rest of the readme has been archived for posterity. Thank you to everyone who checked out Arcade Monitor! 🫡
 
 ---
 
